@@ -106,6 +106,42 @@
       ">⬅ Retour</button>
     </div>
 
+    <!-- Menu DEATH -->
+    <div id="MenuDeath" style="
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      border: 2px solid #ccc;
+      border-radius: 16px;
+      padding: 40px 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      z-index: 999;
+    ">
+      <h2 style="margin-bottom: 10px;">GAME OVER</h2>
+      <p id="DeadBy" style="margin-bottom: 25px; color: #333;">Pilote ta fusée à travers les étoiles, évite les astéroïdes et récupère du carburant pour atteindre la Lune !</p>
+
+      <button id="startButton2" style="
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        margin-bottom: 15px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+      ">Menu</button>
+
+      <br>
+    </div>
+
     <script>
       document.getElementById("helpButton").addEventListener("click", function() {
         document.getElementById("HelpMenu").style.display = "block";

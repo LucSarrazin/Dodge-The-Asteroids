@@ -4,7 +4,16 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import Stats from 'stats.js'
 
+const stats = new Stats()
+stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom)
+stats.dom.style.position = 'absolute';
+stats.dom.style.left = '0px';
+stats.dom.style.bottom = '0px';
+stats.dom.style.top = 'auto'; // désactive le top si défini par défaut
+stats.dom.style.zIndex = '1000';
 // Scene and camera setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -19,6 +28,19 @@ renderer.setAnimationLoop( animate );
 document.body.appendChild(renderer.domElement);
 const loader = new GLTFLoader();
 
+const listener = new THREE.AudioListener();
+camera.add( listener );
+
+
+const audioLoader = new THREE.AudioLoader();
+
+const Ambiance = new THREE.Audio( listener );
+audioLoader.load( 'sounds/space-ambiance.wav', function( buffer ) {
+	Ambiance.setBuffer( buffer );
+	Ambiance.setLoop( true );
+	Ambiance.setVolume( 0.5 );
+	Ambiance.play();
+});
 
 //bloom renderer
 const renderScene = new RenderPass(scene, camera);
@@ -111,43 +133,72 @@ loader.load( 'rocket/Fire.glb', function ( fire ) {
     console.error( error );
 });
 
+
 // Asteroid
-const Asteroid = new THREE.Object3D();
-loader.load( '/Asteroid/Asteroid.glb', function ( asteroid ) {
-    asteroid.scene.scale.set(0.1, 0.1, 0.1);
-    asteroid.scene.position.set(-3, 0, 0);
-    asteroid.scene.rotation.set(-80, 0, 0);
-    Asteroid.add(asteroid.scene);
-    const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
-    localLight.position.set(asteroid.scene.position.x, 2, asteroid.scene.position.z); // placer au centre du Rocket
-    Asteroid.add(localLight)
-    //Rocket.add(fire.scene);
-    //Fire.add(localLight);
-    scene.add( Asteroid );
-}, undefined, function ( error ) {
+const Asteroids = [];
+let asteroidModel = null;
 
-    console.error( error );
-});
+loadAsteroidModel();
+loadGasCanModel();
 
+function loadAsteroidModel() {
+    loader.load('/Asteroid/Asteroid.glb', function (gltf) {
+        asteroidModel = gltf.scene;
+        asteroidModel.scale.set(0.1, 0.1, 0.1);
+        asteroidModel.rotation.set(-80, 0, 0);
+    });
+}
 
+function loadGasCanModel() {
+    loader.load('/GasCan/GasCan.glb', function (gltf) {
+        gasCanModel = gltf.scene;
+        gasCanModel.scale.set(0.7, 0.7, 0.7)
+        gasCanModel.rotation.set(0, 0, 0);
+    });
+}
+
+function CreateAsteroids() {
+    if (!asteroidModel) return;
+
+    const clone = asteroidModel.clone(true);
+    clone.position.set(
+        THREE.MathUtils.randFloat(-5, 5),
+        THREE.MathUtils.randFloat(-2, 5),
+        camera.position.z - 50
+    );
+    const localLight = new THREE.PointLight(0xffffff, 15, 50);
+    localLight.position.set(clone.position.x, 2, clone.position.z);
+    scene.add(clone);
+    Asteroids.push(clone);
+}
 
 // Gas Can
-const GasCan = new THREE.Object3D();
-loader.load( '/GasCan/GasCan.glb', function ( Gascan ) {
-    Gascan.scene.scale.set(0.7, 0.7, 0.7);
-    Gascan.scene.position.set(3, -2, 0);
-    Gascan.scene.rotation.set(0, 0, 0);
-    GasCan.add(Gascan.scene);
-    const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
-    localLight.position.set(Gascan.scene.position.x, 2, Gascan.scene.position.z); // placer au centre du Rocket
-    GasCan.add(localLight)
-    //Rocket.add(fire.scene);
-    //Fire.add(localLight);
-    scene.add( GasCan );
-}, undefined, function ( error ) {
+const GasCans = []
+let gasCanModel = null;
 
-    console.error( error );
-});
+function CreateGas() {
+    if (!gasCanModel) return;
+
+    const clone = gasCanModel.clone(true);
+    clone.position.set(
+        THREE.MathUtils.randFloat(-5, 5),
+        THREE.MathUtils.randFloat(-2, 4),
+        camera.position.z - 50
+    );
+    const localLight = new THREE.PointLight(0xffffff, 15, 50);
+    localLight.position.set(clone.position.x, 2, clone.position.z);
+    scene.add(clone);
+    GasCans.push(clone);
+}
+
+setInterval(() => {
+    if(gameStarted === true){
+    for (let index = 0; index < THREE.MathUtils.randFloat(5,15); index++) {
+        CreateAsteroids();
+    }
+    CreateGas();
+    }
+}, 2000); // toutes les 2 secondes
 
 
 
@@ -170,8 +221,27 @@ const maxCarburant = 100;
 let gameStarted = false;
 let StopCamera = true;
 
+function getReducedBox3(object, reductionFactor) {
+    const box = new THREE.Box3().setFromObject(object);
+
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    const halfSize = size.multiplyScalar(0.5 * reductionFactor);
+
+    box.min.copy(center).sub(halfSize);
+    box.max.copy(center).add(halfSize);
+
+    return box;
+}
+
 // void Update 
 function animate() {
+    
+    stats.begin()
     const delta = clock.getDelta();
     const speedRocket = 5; // 5 unité/seconde
     const moveDistance = speedRocket * delta;
@@ -186,6 +256,76 @@ function animate() {
             Rocket.position.z -= moveCameraDistance;
         }
 
+
+        if (!rocketModel) return;
+
+        const rocketBox = getReducedBox3(rocketModel, 0.5);
+        //console.log("🚀 rocketBox:", rocketBox.min, rocketBox.max);
+
+        // Collision avec astéroïdes
+        Asteroids.forEach((asteroid) => {
+            const asteroidBox = getReducedBox3(asteroid, 0.6);
+            //console.log(" asteroidBox:", asteroidBox.min, asteroidBox.max);
+            if (rocketBox.intersectsBox(asteroidBox)) {
+                // Explosion à la position de la fusée
+                const rocketPosition = new THREE.Vector3();
+                rocketModel.getWorldPosition(rocketPosition);
+                createExplosion(rocketPosition);
+                
+                THREE.AudioContext.getContext().resume();
+                const Explosion = new THREE.Audio( listener );
+                audioLoader.load( 'sounds/explosion.mp3', function( buffer ) {
+                	Explosion.setBuffer( buffer );
+                	Explosion.setLoop( false );
+                	Explosion.setVolume( 1 );
+                	Explosion.play();
+                });
+                console.log("💥 Collision avec un astéroïde !");
+
+
+                document.getElementById("MenuDeath").style.display = "block";
+                document.getElementById("DeadBy").innerHTML = "💥 Collision avec un astéroïde !";
+                gameStarted = false;
+                
+                speedCamera = 0;
+            }
+        });
+
+        // Collision avec bidons
+        GasCans.forEach((gasCan, index) => {
+            const gasBox = getReducedBox3(gasCan, 1);  
+            //console.log(" gasBox:", gasBox.min, gasBox.max);
+            if (rocketBox.intersectsBox(gasBox)) {
+                console.log("⛽ Essence récupérée !");
+                currentCarburant = Math.min(currentCarburant + 20, maxCarburant);
+                scene.remove(gasCan);
+                GasCans.splice(index, 1);
+            }
+        });
+
+        GasCans.forEach((element) => {
+            if(element.position )
+            if(element.position.z > camera.position.z + 10){
+                scene.remove(element);
+                //console.log("Supprimer !");
+                //console.log(GasCans);
+                return false;
+            }
+            //console.log(GasCans);
+            return true;
+        });
+
+        Asteroids.forEach((element) => {
+            if(element.position.z > camera.position.z + 10){
+                scene.remove(element);
+                //console.log("Supprimer !");
+                //console.log(Asteroids);
+                return false;
+            }
+            //console.log(Asteroids);
+            return true;
+        });
+
         // Mettre à jour la distance affichée
         const distanceValue = document.getElementById('distanceValue');
         distanceValue.textContent = Math.abs(Math.floor((-9450) - camera.position.z));
@@ -196,20 +336,24 @@ function animate() {
 
         const carburantBar = document.getElementById('carburantBar');
         const carburantValue = document.getElementById('carburantValue');
-        currentCarburant -= 2 * delta;
+        currentCarburant -= 5 * delta;
         carburantValue.textContent = Math.floor(currentCarburant);
 
         carburantBar.value = currentCarburant;
         // Si le carburant est épuisé, on arrête le jeu
         if (currentCarburant <= 0) {
-            alert('Game Over! You have run out of fuel.');
+            //alert('Game Over! You have run out of fuel.');
             currentCarburant = 0;
+            document.getElementById("MenuDeath").style.display = "block";
+            document.getElementById("DeadBy").innerHTML = "You have run out of fuel.";
             renderer.setAnimationLoop(null); // Stop the animation loop
             return;
         }
 
         if (Rocket.position.z <= (-9450)) {
-            alert('You Win ! Boom.');
+            //alert('You Win ! Boom.');
+            document.getElementById("MenuDeath").style.display = "block";
+            document.getElementById("DeadBy").innerHTML = "Boom.";
             StopCamera = true;
             speedCamera = 0.5;
             gameStarted = false;
@@ -276,6 +420,8 @@ function animate() {
     sphere.rotation.y += 0.3 * delta;
 
     bloomComposer.render();
+    
+    stats.end()
 }
 
 
@@ -311,11 +457,24 @@ window.addEventListener('resize', () => {
 document.getElementById("startButton").addEventListener("click", function() {
     document.getElementById("HelpMenu").style.display = "none";
     document.getElementById("Menu").style.display = "none";
+    document.getElementById("MenuDeath").style.display = "none";
+    THREE.AudioContext.getContext().resume();
+    const RocketEngine = new THREE.Audio( listener );
+    audioLoader.load( 'sounds/rocketEngine.wav', function( buffer ) {
+    	RocketEngine.setBuffer( buffer );
+    	RocketEngine.setLoop( true );
+    	RocketEngine.setVolume( 0.6 );
+    	RocketEngine.play();
+    });
+
     gameStarted = true;
     StopCamera = false;
     currentCarburant = maxCarburant;
 });
-
+document.getElementById("startButton2").addEventListener("click", function() {
+    document.getElementById("MenuDeath").style.display = "none";
+    window.location.reload();
+});
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -330,8 +489,7 @@ if (name === "tigrouto") {
         rocket.scene.rotation.set(0,-80,0);
         rocketModel = rocket.scene;
         Rocket.add(rocketModel);
-        
-        const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
+        const localLight = new THREE.PointLight(0xffaa33, 5, 30); // couleur, intensité, portée
         localLight.position.set(0, 5, 0); // placer au centre du Rocket
 
         Rocket.add(localLight);
@@ -348,8 +506,7 @@ else{
         rocket.scene.rotation.set(80, 0, 0);
         rocketModel = rocket.scene;
         Rocket.add(rocketModel);
-        
-        const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
+        const localLight = new THREE.PointLight(0xffaa33, 5, 30); // couleur, intensité, portée
         localLight.position.set(0, 0, 0); // placer au centre du Rocket
         Rocket.add(localLight);
         scene.add( Rocket );
@@ -357,4 +514,47 @@ else{
     
         console.error( error );
     });
+}
+
+function createExplosion(position) {
+    const particleCount = 30;
+    const explosionGroup = new THREE.Group();
+
+    for (let i = 0; i < particleCount; i++) {
+        const geometry = new THREE.SphereGeometry(0.1, 8, 8);
+        const material = new THREE.MeshBasicMaterial({ color: 0xff6600 });
+        const particle = new THREE.Mesh(geometry, material);
+        particle.position.copy(position);
+
+        const velocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 3,
+            (Math.random() - 0.5) * 3,
+            (Math.random() - 0.5) * 3
+        );
+
+        // Attache la vitesse à l’objet
+        particle.userData.velocity = velocity;
+
+        explosionGroup.add(particle);
+    }
+
+    scene.add(explosionGroup);
+
+    const startTime = performance.now();
+    function animateExplosion() {
+        const elapsed = (performance.now() - startTime) / 1000;
+
+        explosionGroup.children.forEach(particle => {
+            particle.position.add(particle.userData.velocity.clone().multiplyScalar(0.1));
+            particle.material.opacity = Math.max(1.0 - elapsed, 0);
+        });
+
+        if (elapsed < 1.5) {
+            requestAnimationFrame(animateExplosion);
+        } else {
+            scene.remove(explosionGroup);
+        }
+    }
+
+    animateExplosion();
 }
