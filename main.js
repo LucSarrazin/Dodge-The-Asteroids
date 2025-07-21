@@ -162,8 +162,8 @@ function CreateAsteroids() {
 
     const clone = asteroidModel.clone(true);
     clone.position.set(
-        THREE.MathUtils.randFloat(-5, 5),
-        THREE.MathUtils.randFloat(-2, 5),
+        THREE.MathUtils.randFloat(-6, 6),
+        THREE.MathUtils.randFloat(-3, 6),
         camera.position.z - 50
     );
     const localLight = new THREE.PointLight(0xffffff, 15, 50);
@@ -193,7 +193,7 @@ function CreateGas() {
 
 setInterval(() => {
     if(gameStarted === true){
-    for (let index = 0; index < THREE.MathUtils.randFloat(5,15); index++) {
+    for (let index = 0; index < THREE.MathUtils.randFloat(5,30); index++) {
         CreateAsteroids();
     }
     CreateGas();
