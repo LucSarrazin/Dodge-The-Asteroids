@@ -2,12 +2,120 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>My first three.js app</title>
+    <title>Dodge the asteroids</title>
     <style>
       body { margin: 0; }
     </style>
   </head>
   <body>
+    <div id="distance" style="display: block; position: absolute; top: 20px; left: 20px; background: white; padding: 15px; border: 2px solid black; border-radius: 8px; font-family: Arial, sans-serif; max-width: 300px; z-index: 999;">
+      <strong>Distance restante : </strong> <br>
+      <span id="distanceValue">10 000</span> années lumières !
+      <progress id="progressBar" value="0" max="10000" style="width: 100%; margin-top: 10px;"></progress>
+    </div>
+
+    <div id="carburant" style="display: block; position: absolute; bottom: 20px; right: 20px; background: white; padding: 15px; border: 2px solid black; border-radius: 8px; font-family: Arial, sans-serif; max-width: 300px; z-index: 999;">
+      <strong>Carburant restant : </strong> <br>
+      <span id="carburantValue">100</span> %
+      <progress id="carburantBar" value="0" max="100" style="width: 100%; margin-top: 10px;"></progress>
+    </div>
+
+    <div id="Menu" style="
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      border: 2px solid #ccc;
+      border-radius: 16px;
+      padding: 40px 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      z-index: 999;
+    ">
+      <h2 style="margin-bottom: 10px;">Bienvenue dans le jeu</h2>
+      <p style="margin-bottom: 25px; color: #333;">Pilote ta fusée à travers les étoiles, évite les astéroïdes et récupère du carburant pour atteindre la Lune !</p>
+
+      <button id="startButton" style="
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        margin-bottom: 15px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+      ">🚀 Démarrer le jeu</button>
+
+      <br>
+
+      <button id="helpButton" style="
+        background-color: #6c757d;
+        color: white;
+        padding: 10px 24px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+      ">❓ Aide</button>
+    </div>
+
+    <!-- MENU AIDE -->
+    <div id="HelpMenu" style="
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      border: 2px solid #ccc;
+      border-radius: 16px;
+      padding: 30px 25px;
+      max-width: 400px;
+      width: 90%;
+      font-family: Arial, sans-serif;
+      z-index: 999;
+    ">
+      <h2 style="text-align: center;">Contrôles du jeu</h2>
+      <ul style="margin: 20px 0; padding-left: 20px; color: #333;">
+        <li><strong>Flèche Haut :</strong> Monter</li>
+        <li><strong>Flèche Bas :</strong> Descendre</li>
+        <li><strong>Flèche Gauche :</strong> Aller à gauche</li>
+        <li><strong>Flèche Droite :</strong> Aller à droite</li>
+      </ul>
+      <br>
+    
+      <button id="backButton" style="
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        background-color: #6c757d;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+      ">⬅ Retour</button>
+    </div>
+
+    <script>
+      document.getElementById("helpButton").addEventListener("click", function() {
+        document.getElementById("HelpMenu").style.display = "block";
+        document.getElementById("Menu").style.display = "none";
+      });
+      document.getElementById("backButton").addEventListener("click", function() {
+        document.getElementById("HelpMenu").style.display = "none";
+        document.getElementById("Menu").style.display = "block";
+      });
+    </script>
+
     <script type="module" src="/main.js"></script>
   </body>
 </html>
