@@ -270,6 +270,7 @@ function animate() {
                 // Explosion à la position de la fusée
                 const rocketPosition = new THREE.Vector3();
                 rocketModel.getWorldPosition(rocketPosition);
+                rocketPosition.z -= 1;
                 createExplosion(rocketPosition);
                 
                 THREE.AudioContext.getContext().resume();
@@ -280,11 +281,13 @@ function animate() {
                 	Explosion.setVolume( 1 );
                 	Explosion.play();
                 });
+                
+                RocketEngine.stop();
                 console.log("💥 Collision avec un astéroïde !");
 
 
                 document.getElementById("MenuDeath").style.display = "block";
-                document.getElementById("DeadBy").innerHTML = "💥 Collision avec un astéroïde !";
+                document.getElementById("DeadBy").innerHTML = "💥 You've collided with an asteroid !";
                 gameStarted = false;
                 
                 speedCamera = 0;
@@ -343,6 +346,7 @@ function animate() {
         // Si le carburant est épuisé, on arrête le jeu
         if (currentCarburant <= 0) {
             //alert('Game Over! You have run out of fuel.');
+            RocketEngine.stop();
             currentCarburant = 0;
             document.getElementById("MenuDeath").style.display = "block";
             document.getElementById("DeadBy").innerHTML = "You have run out of fuel.";
@@ -352,8 +356,25 @@ function animate() {
 
         if (Rocket.position.z <= (-9450)) {
             //alert('You Win ! Boom.');
+            // Explosion à la position de la fusée
+            const rocketPosition = new THREE.Vector3();
+            rocketModel.getWorldPosition(rocketPosition);
+            rocketPosition.z -= 1;
+            createExplosion(rocketPosition);
+            
+            THREE.AudioContext.getContext().resume();
+            const Explosion = new THREE.Audio( listener );
+            audioLoader.load( 'sounds/explosion.mp3', function( buffer ) {
+            	Explosion.setBuffer( buffer );
+            	Explosion.setLoop( false );
+            	Explosion.setVolume( 1 );
+            	Explosion.play();
+            });
+            
+            RocketEngine.stop();
             document.getElementById("MenuDeath").style.display = "block";
-            document.getElementById("DeadBy").innerHTML = "Boom.";
+            document.getElementById("GameOver").innerHTML = "You Win !"
+            document.getElementById("DeadBy").innerHTML = "But you crashed on the moon";
             StopCamera = true;
             speedCamera = 0.5;
             gameStarted = false;
@@ -453,13 +474,13 @@ window.addEventListener('resize', () => {
     bloomComposer.setSize(window.innerWidth, window.innerHeight);
 });
 
-
+let RocketEngine;
 document.getElementById("startButton").addEventListener("click", function() {
     document.getElementById("HelpMenu").style.display = "none";
     document.getElementById("Menu").style.display = "none";
     document.getElementById("MenuDeath").style.display = "none";
     THREE.AudioContext.getContext().resume();
-    const RocketEngine = new THREE.Audio( listener );
+    RocketEngine = new THREE.Audio( listener );
     audioLoader.load( 'sounds/rocketEngine.wav', function( buffer ) {
     	RocketEngine.setBuffer( buffer );
     	RocketEngine.setLoop( true );

@@ -11,7 +11,7 @@
   <body>
     <div id="distance" style="display: block; position: absolute; top: 20px; left: 20px; background: white; padding: 15px; border: 2px solid black; border-radius: 8px; font-family: Arial, sans-serif; max-width: 300px; z-index: 999;">
       <strong>Distance restante : </strong> <br>
-      <span id="distanceValue">10 000</span> années lumières !
+      <span id="distanceValue">10 000</span> <span id="distanceUnit">années lumières !</span>
       <progress id="progressBar" value="0" max="10000" style="width: 100%; margin-top: 10px;"></progress>
     </div>
 
@@ -124,7 +124,7 @@
       font-family: Arial, sans-serif;
       z-index: 999;
     ">
-      <h2 style="margin-bottom: 10px;">GAME OVER</h2>
+      <h2 id="GameOver" style="margin-bottom: 10px;">GAME OVER</h2>
       <p id="DeadBy" style="margin-bottom: 25px; color: #333;">Pilote ta fusée à travers les étoiles, évite les astéroïdes et récupère du carburant pour atteindre la Lune !</p>
 
       <button id="startButton2" style="
@@ -142,6 +142,20 @@
       <br>
     </div>
 
+    <div id="languageSwitcher" style="
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      font-family: Arial, sans-serif;
+    ">
+      <select id="languageSelect" style="padding: 6px 10px; border-radius: 6px;">
+        <option value="fr">🇫🇷 Français</option>
+        <option value="en">🇬🇧 English</option>
+      </select>
+    </div>
+
+
     <script>
       document.getElementById("helpButton").addEventListener("click", function() {
         document.getElementById("HelpMenu").style.display = "block";
@@ -152,6 +166,88 @@
         document.getElementById("Menu").style.display = "block";
       });
     </script>
+
+    <script>
+      const translations = {
+        fr: {
+          welcomeTitle: "Bienvenue dans le jeu",
+          welcomeText: "Pilote ta fusée à travers les étoiles, évite les astéroïdes et récupère du carburant pour atteindre la Lune !",
+          startButton: "🚀 Démarrer le jeu",
+          helpButton: "❓ Aide",
+          helpTitle: "Contrôles du jeu",
+          up: "Flèche Haut : Monter",
+          down: "Flèche Bas : Descendre",
+          left: "Flèche Gauche : Aller à gauche",
+          right: "Flèche Droite : Aller à droite",
+          back: "⬅ Retour",
+          gameOver: "GAME OVER",
+          deadByDefault: "Pilote ta fusée à travers les étoiles, évite les astéroïdes et récupère du carburant pour atteindre la Lune !",
+          restartButton: "Menu",
+          distanceLabel: "Distance restante :",
+          fuelLabel: "Carburant restant :",
+          distanceUnit: "années lumières !"
+        },
+        en: {
+          welcomeTitle: "Welcome to the Game",
+          welcomeText: "Pilot your rocket through the stars, avoid asteroids and collect fuel to reach the Moon!",
+          startButton: "🚀 Start Game",
+          helpButton: "❓ Help",
+          helpTitle: "Game Controls",
+          up: "Arrow Up: Go Up",
+          down: "Arrow Down: Go Down",
+          left: "Arrow Left: Go Left",
+          right: "Arrow Right: Go Right",
+          back: "⬅ Back",
+          gameOver: "GAME OVER",
+          deadByDefault: "Pilot your rocket through the stars, avoid asteroids and collect fuel to reach the Moon!",
+          restartButton: "Menu",
+          distanceLabel: "Remaining Distance:",
+          fuelLabel: "Remaining Fuel:",
+          distanceUnit: "light years!"
+        }
+      };
+    
+      function applyLanguage(lang) {
+        const t = translations[lang];
+      
+        // Menu
+        document.querySelector("#Menu h2").innerText = t.welcomeTitle;
+        document.querySelector("#Menu p").innerText = t.welcomeText;
+        document.querySelector("#startButton").innerText = t.startButton;
+        document.querySelector("#helpButton").innerText = t.helpButton;
+      
+        // Help Menu
+        document.querySelector("#HelpMenu h2").innerText = t.helpTitle;
+        const items = document.querySelectorAll("#HelpMenu ul li");
+        if (items.length >= 4) {
+          items[0].innerText = t.up;
+          items[1].innerText = t.down;
+          items[2].innerText = t.left;
+          items[3].innerText = t.right;
+        }
+        document.querySelector("#backButton").innerText = t.back;
+      
+        // Game Over
+        document.querySelector("#GameOver").innerText = t.gameOver;
+        document.querySelector("#DeadBy").innerText = t.deadByDefault;
+        document.querySelector("#startButton2").innerText = t.restartButton;
+      
+        // Distance and Fuel
+        document.querySelector("#distance strong").innerText = t.distanceLabel;
+        document.querySelector("#carburant strong").innerText = t.fuelLabel;
+        document.querySelector("#distanceUnit").innerText = t.distanceUnit;
+
+      }
+    
+      const select = document.getElementById("languageSelect");
+      select.addEventListener("change", () => {
+        applyLanguage(select.value);
+      });
+    
+      // Initialisation
+      applyLanguage("fr");
+    </script>
+
 
     <script type="module" src="/main.js"></script>
   </body>
