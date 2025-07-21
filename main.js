@@ -92,46 +92,17 @@ scene.add( sphere );
 // Rocket
 const Rocket = new THREE.Object3D();
 let rocketModel;
-loader.load( 'rocket/spaceship.gltf', function ( rocket ) {
-    
-    if (nameTigrouto === true) {
-        console.log("Changement du model !");
-        rocket.scene.scale.set(0.2, 0.2, 0.2);
-        rocket.scene.position.set(0, -2, 0);
-        rocket.scene.rotation.set(80, 0, 0);
-        rocketModel = rocket.scene;
-        Rocket.add(rocketModel);
-        Rocket.add(localLight);
-        scene.add( Rocket );
-    }
-    else{
-
-    }
-}, undefined, function ( error ) {
-
-    console.error( error );
-});
-loader.load( 'rocket/Rocketship.glb', function ( rocket ) {
-    rocket.scene.scale.set(0.2, 0.2, 0.2);
-    rocket.scene.position.set(0, -2, 0);
-    rocket.scene.rotation.set(80, 0, 0);
-    rocketModel = rocket.scene;
-    Rocket.add(rocketModel);
-    Rocket.add(localLight);
-    scene.add( Rocket );
-}, undefined, function ( error ) {
-
-    console.error( error );
-});
 
 
 // Fire
 const Fire = new THREE.Object3D();
 loader.load( 'rocket/Fire.glb', function ( fire ) {
-    fire.scene.scale.set(3, 3, 3);
-    fire.scene.position.set(0, -2, 0);
-    fire.scene.rotation.set(-80, 0, 0);
-    Fire.add(fire.scene);
+    if(nameTigrouto === false){
+        fire.scene.scale.set(3, 3, 3);
+        fire.scene.position.set(0, -2, 0);
+        fire.scene.rotation.set(-80, 0, 0);
+        Fire.add(fire.scene);
+    }
     //Rocket.add(fire.scene);
     //Fire.add(localLight);
     //scene.add( Fire );
@@ -144,8 +115,6 @@ loader.load( 'rocket/Fire.glb', function ( fire ) {
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
 
-const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
-localLight.position.set(0, 0, 0); // placer au centre du Rocket
 
 /*const helper = new THREE.PointLightHelper(localLight, 1); // 1 = taille
 scene.add(helper);*/
@@ -313,6 +282,40 @@ document.getElementById("startButton").addEventListener("click", function() {
 const urlParams = new URLSearchParams(window.location.search);
 const name = urlParams.get('name');
 if (name === "tigrouto") {
-  console.log("Bienvenue Tigrouto !");
-  nameTigrouto = true;
+    console.log("Bienvenue Tigrouto !");
+    nameTigrouto = true;
+    console.log("Changement du model !");
+    loader.load( 'rocket/scene.gltf', function ( rocket ) {
+        rocket.scene.scale.set(0.3, 0.3, 0.3);
+        rocket.scene.position.set(0, -2, 0);
+        rocket.scene.rotation.set(0,-80,0);
+        rocketModel = rocket.scene;
+        Rocket.add(rocketModel);
+        
+        const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
+        localLight.position.set(0, 5, 0); // placer au centre du Rocket
+
+        Rocket.add(localLight);
+        scene.add( Rocket );
+    }, undefined, function ( error ) {
+        console.error( error );
+    });
+}   
+else{
+    console.log("Bienvenue inconnu !");
+    loader.load( 'rocket/Rocketship.glb', function ( rocket ) {
+        rocket.scene.scale.set(0.2, 0.2, 0.2);
+        rocket.scene.position.set(0, -2, 0);
+        rocket.scene.rotation.set(80, 0, 0);
+        rocketModel = rocket.scene;
+        Rocket.add(rocketModel);
+        
+        const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
+        localLight.position.set(0, 0, 0); // placer au centre du Rocket
+        Rocket.add(localLight);
+        scene.add( Rocket );
+    }, undefined, function ( error ) {
+    
+        console.error( error );
+    });
 }
