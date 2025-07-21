@@ -111,6 +111,45 @@ loader.load( 'rocket/Fire.glb', function ( fire ) {
     console.error( error );
 });
 
+// Asteroid
+const Asteroid = new THREE.Object3D();
+loader.load( '/Asteroid/Asteroid.glb', function ( asteroid ) {
+    asteroid.scene.scale.set(0.1, 0.1, 0.1);
+    asteroid.scene.position.set(-3, 0, 0);
+    asteroid.scene.rotation.set(-80, 0, 0);
+    Asteroid.add(asteroid.scene);
+    const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
+    localLight.position.set(asteroid.scene.position.x, 2, asteroid.scene.position.z); // placer au centre du Rocket
+    Asteroid.add(localLight)
+    //Rocket.add(fire.scene);
+    //Fire.add(localLight);
+    scene.add( Asteroid );
+}, undefined, function ( error ) {
+
+    console.error( error );
+});
+
+
+
+// Gas Can
+const GasCan = new THREE.Object3D();
+loader.load( '/GasCan/GasCan.glb', function ( Gascan ) {
+    Gascan.scene.scale.set(0.7, 0.7, 0.7);
+    Gascan.scene.position.set(3, -2, 0);
+    Gascan.scene.rotation.set(0, 0, 0);
+    GasCan.add(Gascan.scene);
+    const localLight = new THREE.PointLight(0xffffff, 15, 50); // couleur, intensité, portée
+    localLight.position.set(Gascan.scene.position.x, 2, Gascan.scene.position.z); // placer au centre du Rocket
+    GasCan.add(localLight)
+    //Rocket.add(fire.scene);
+    //Fire.add(localLight);
+    scene.add( GasCan );
+}, undefined, function ( error ) {
+
+    console.error( error );
+});
+
+
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
@@ -137,7 +176,7 @@ function animate() {
     const speedRocket = 5; // 5 unité/seconde
     const moveDistance = speedRocket * delta;
 
-    let speedCamera = 1100; // 33 unité/seconde
+    let speedCamera = 33; // 33 unité/seconde
 
     if(gameStarted === true) {
         Rocket.add(Fire);
