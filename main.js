@@ -202,7 +202,7 @@ setInterval(() => {
 
 
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
 scene.add(ambientLight);
 
 
@@ -283,11 +283,11 @@ function animate() {
                 });
                 
                 RocketEngine.stop();
-                console.log("💥 Collision avec un astéroïde !");
-
+                console.log(t('collidedAsteroid'));
 
                 document.getElementById("MenuDeath").style.display = "block";
-                document.getElementById("DeadBy").innerHTML = "💥 You've collided with an asteroid !";
+                document.getElementById("DeadBy").innerHTML = t('gameOverReasonAsteroid');
+                document.getElementById("GameOver").innerHTML = t('gameOverTitle');
                 gameStarted = false;
                 
                 speedCamera = 0;
@@ -299,7 +299,15 @@ function animate() {
             const gasBox = getReducedBox3(gasCan, 1);  
             //console.log(" gasBox:", gasBox.min, gasBox.max);
             if (rocketBox.intersectsBox(gasBox)) {
-                console.log("⛽ Essence récupérée !");
+                console.log(t('fuelCollected'));
+                THREE.AudioContext.getContext().resume();
+                const gas = new THREE.Audio( listener );
+                audioLoader.load( 'sounds/item.mp3', function( buffer ) {
+                	gas.setBuffer( buffer );
+                	gas.setLoop( false );
+                	gas.setVolume( 1 );
+                	gas.play();
+                });
                 currentCarburant = Math.min(currentCarburant + 20, maxCarburant);
                 scene.remove(gasCan);
                 GasCans.splice(index, 1);
@@ -349,7 +357,8 @@ function animate() {
             RocketEngine.stop();
             currentCarburant = 0;
             document.getElementById("MenuDeath").style.display = "block";
-            document.getElementById("DeadBy").innerHTML = "You have run out of fuel.";
+            document.getElementById("DeadBy").innerHTML = t('outOfFuel');
+            document.getElementById("GameOver").innerHTML = t('gameOverTitle');
             renderer.setAnimationLoop(null); // Stop the animation loop
             return;
         }
@@ -373,8 +382,8 @@ function animate() {
             
             RocketEngine.stop();
             document.getElementById("MenuDeath").style.display = "block";
-            document.getElementById("GameOver").innerHTML = "You Win !"
-            document.getElementById("DeadBy").innerHTML = "But you crashed on the moon";
+            document.getElementById("GameOver").innerHTML = t('winTitle');
+            document.getElementById("DeadBy").innerHTML = t('winMessage');
             StopCamera = true;
             speedCamera = 0.5;
             gameStarted = false;
@@ -578,4 +587,16 @@ function createExplosion(position) {
     }
 
     animateExplosion();
+}
+
+const select = document.getElementById("languageSelect");
+
+let currentLang = select.value || "fr";
+
+select.addEventListener("change", () => {
+  currentLang = select.value;
+  // Ici tu peux faire d’autres actions (rafraîchir l’UI, etc.)
+});
+function t(key) {
+  return translations[currentLang][key] || key;
 }
