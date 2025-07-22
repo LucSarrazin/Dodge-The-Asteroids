@@ -300,6 +300,8 @@ function animate() {
                 rocketModel.getWorldPosition(rocketPosition);
                 rocketPosition.z -= 1;
                 createExplosion(rocketPosition);
+                shakeCamera(0.5, 300);
+
                 
                 THREE.AudioContext.getContext().resume();
                 Explosion.play();
@@ -472,6 +474,20 @@ function animate() {
     stats.end()
 }
 
+function shakeCamera(intensity = 0.5, duration = 300) {
+    const originalPos = camera.position.clone();
+    const interval = setInterval(() => {
+        camera.position.x = originalPos.x + (Math.random() - 0.5) * intensity;
+        camera.position.y = originalPos.y + (Math.random() - 0.5) * intensity;
+    }, 16);
+
+    setTimeout(() => {
+        clearInterval(interval);
+        camera.position.x = originalPos.x;
+        camera.position.y = originalPos.y;
+    }, duration);
+}
+
 
 // Keyboard controls
 document.addEventListener('keydown', (event) => {
@@ -578,6 +594,7 @@ function createExplosion(position) {
 
         explosionGroup.add(particle);
     }
+    
 
     scene.add(explosionGroup);
 
@@ -621,3 +638,4 @@ document.addEventListener('click', () => {
     Ambiance.play();
   }
 });
+
