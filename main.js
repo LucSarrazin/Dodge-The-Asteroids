@@ -42,6 +42,34 @@ audioLoader.load( 'sounds/space-ambiance.wav', function( buffer ) {
 	Ambiance.play();
 });
 
+const Explosion = new THREE.Audio( listener );
+audioLoader.load( 'sounds/explosion.mp3', function( buffer ) {
+	Explosion.setBuffer( buffer );
+	Explosion.setLoop( false );
+	Explosion.setVolume( 1 );
+});
+
+const gas = new THREE.Audio( listener );
+audioLoader.load( 'sounds/item.mp3', function( buffer ) {
+	gas.setBuffer( buffer );
+	gas.setLoop( false );
+	gas.setVolume( 1 );
+});
+
+const RocketEngine = new THREE.Audio( listener );
+audioLoader.load( 'sounds/rocketEngine.wav', function( buffer ) {
+	RocketEngine.setBuffer( buffer );
+	RocketEngine.setLoop( true );
+	RocketEngine.setVolume( 0.6 );
+});
+
+const FuelAlert = new THREE.Audio( listener );
+audioLoader.load( 'sounds/fuelAlarm.wav', function( buffer ) {
+	FuelAlert.setBuffer( buffer );
+	FuelAlert.setLoop( true );
+	FuelAlert.setVolume( 0.6 );
+});
+
 //bloom renderer
 const renderScene = new RenderPass(scene, camera);
 const bloomPass = new UnrealBloomPass(
@@ -274,13 +302,7 @@ function animate() {
                 createExplosion(rocketPosition);
                 
                 THREE.AudioContext.getContext().resume();
-                const Explosion = new THREE.Audio( listener );
-                audioLoader.load( 'sounds/explosion.mp3', function( buffer ) {
-                	Explosion.setBuffer( buffer );
-                	Explosion.setLoop( false );
-                	Explosion.setVolume( 1 );
-                	Explosion.play();
-                });
+                Explosion.play();
                 
                 RocketEngine.stop();
                 console.log(t('collidedAsteroid'));
@@ -301,13 +323,7 @@ function animate() {
             if (rocketBox.intersectsBox(gasBox)) {
                 console.log(t('fuelCollected'));
                 THREE.AudioContext.getContext().resume();
-                const gas = new THREE.Audio( listener );
-                audioLoader.load( 'sounds/item.mp3', function( buffer ) {
-                	gas.setBuffer( buffer );
-                	gas.setLoop( false );
-                	gas.setVolume( 1 );
-                	gas.play();
-                });
+                gas.play();
                 currentCarburant = Math.min(currentCarburant + 20, maxCarburant);
                 scene.remove(gasCan);
                 GasCans.splice(index, 1);
@@ -372,13 +388,7 @@ function animate() {
             createExplosion(rocketPosition);
             
             THREE.AudioContext.getContext().resume();
-            const Explosion = new THREE.Audio( listener );
-            audioLoader.load( 'sounds/explosion.mp3', function( buffer ) {
-            	Explosion.setBuffer( buffer );
-            	Explosion.setLoop( false );
-            	Explosion.setVolume( 1 );
-            	Explosion.play();
-            });
+            Explosion.play();
             
             RocketEngine.stop();
             document.getElementById("MenuDeath").style.display = "block";
@@ -483,19 +493,12 @@ window.addEventListener('resize', () => {
     bloomComposer.setSize(window.innerWidth, window.innerHeight);
 });
 
-let RocketEngine;
 document.getElementById("startButton").addEventListener("click", function() {
     document.getElementById("HelpMenu").style.display = "none";
     document.getElementById("Menu").style.display = "none";
     document.getElementById("MenuDeath").style.display = "none";
     THREE.AudioContext.getContext().resume();
-    RocketEngine = new THREE.Audio( listener );
-    audioLoader.load( 'sounds/rocketEngine.wav', function( buffer ) {
-    	RocketEngine.setBuffer( buffer );
-    	RocketEngine.setLoop( true );
-    	RocketEngine.setVolume( 0.6 );
-    	RocketEngine.play();
-    });
+    RocketEngine.play();
 
     gameStarted = true;
     StopCamera = false;
