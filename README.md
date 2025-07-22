@@ -12,7 +12,7 @@ Une expérience de jeu arcade 3D développée avec **Three.js**. Dans ce mini-je
 * 🌙 Objectif : atteindre la Lune sans être détruit
 * 🎆 Effets visuels de secousse de caméra en cas de quasi-collision
 * 🧠 Système de score basé sur la distance parcourue
-* 🇫🇷 Jeu disponible dans deux langues (Français et Anglais)
+* 🇫🇷/🇺🇸 Jeu disponible dans deux langues (Français et Anglais)
 
 ---
 
