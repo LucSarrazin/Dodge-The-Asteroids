@@ -603,3 +603,13 @@ select.addEventListener("change", () => {
 function t(key) {
   return translations[currentLang][key] || key;
 }
+
+document.addEventListener('click', () => {
+  // S'assurer que le contexte audio est bien activé (pour Chrome / mobile)
+  THREE.AudioContext.getContext().resume();
+
+  /*// Jouer le son s’il est prêt
+  if (Ambiance.buffer && !Ambiance.isPlaying) {
+    Ambiance.play();
+  }*/
+});
