@@ -305,6 +305,7 @@ function animate() {
                 Explosion.play();
                 
                 RocketEngine.stop();
+                FuelAlert.stop();
                 console.log(t('collidedAsteroid'));
 
                 document.getElementById("MenuDeath").style.display = "block";
@@ -371,12 +372,18 @@ function animate() {
         if (currentCarburant <= 0) {
             //alert('Game Over! You have run out of fuel.');
             RocketEngine.stop();
+            FuelAlert.stop();
             currentCarburant = 0;
             document.getElementById("MenuDeath").style.display = "block";
             document.getElementById("DeadBy").innerHTML = t('outOfFuel');
             document.getElementById("GameOver").innerHTML = t('gameOverTitle');
             renderer.setAnimationLoop(null); // Stop the animation loop
             return;
+        }
+        if (currentCarburant <= 30) {
+            FuelAlert.play();
+        }else if(currentCarburant > 30){
+            FuelAlert.stop();
         }
 
         if (Rocket.position.z <= (-9450)) {
@@ -391,6 +398,7 @@ function animate() {
             Explosion.play();
             
             RocketEngine.stop();
+            FuelAlert.stop();
             document.getElementById("MenuDeath").style.display = "block";
             document.getElementById("GameOver").innerHTML = t('winTitle');
             document.getElementById("DeadBy").innerHTML = t('winMessage');
@@ -608,8 +616,8 @@ document.addEventListener('click', () => {
   // S'assurer que le contexte audio est bien activé (pour Chrome / mobile)
   THREE.AudioContext.getContext().resume();
 
-  /*// Jouer le son s’il est prêt
+  // Jouer le son s’il est prêt
   if (Ambiance.buffer && !Ambiance.isPlaying) {
     Ambiance.play();
-  }*/
+  }
 });
