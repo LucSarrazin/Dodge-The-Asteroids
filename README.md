@@ -3,6 +3,7 @@
 Une expérience de jeu arcade 3D développée avec **Three.js**. Dans ce mini-jeu, pilote ta fusée à travers un champ d'astéroïdes, évite les collisions et parcours la plus grande distance possible pour atteindre la Lune !
 
 Lien du jeu : https://dodge-asteroids.netlify.app/
+
 ---
 
 ## 🎮 Gameplay
